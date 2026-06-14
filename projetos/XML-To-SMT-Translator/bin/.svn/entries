@@ -1,53 +1,0 @@
-10
-
-dir
-73
-https://rodin-smt-solver-translator.googlecode.com/svn/trunk/XML-To-SMT-Translator/src
-https://rodin-smt-solver-translator.googlecode.com/svn
-
-
-
-2010-07-14T02:16:32.706928Z
-73
-vit.alcantara
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-d4024b80-ebbe-11de-91ba-91c70a792394
-
-activatorpack
-dir
-
-com
-dir
-
-novoteste
-dir
-
-pluginactions
-dir
-
-visual
-dir
-
-visualKernel
-dir
-
-
-
-delete
-
-xml_smt_trans
-dir
-
