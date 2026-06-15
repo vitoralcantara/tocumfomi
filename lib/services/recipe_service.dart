@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
 
 class RecipeService {
-  // Mock data for demonstration
+  // Edamam API credentials
+  static const String _appId = 'b9347332';
+  static const String _appKey = '3db2d2ddf00d3f4de09d42cf0c5eb01c';
+  static const String _baseUrl = 'https://api.edamam.com/api/recipes/v2';
+
+  // Mock data for fallback
   final List<Recipe> _mockRecipes = [
     Recipe(
       id: '1',
@@ -109,18 +116,105 @@ class RecipeService {
   ];
 
   Future<List<Recipe>> getRecipes() async {
-    // Simulate API delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Return mock data for now
     return _mockRecipes;
   }
 
   Future<List<Recipe>> getRecipesByIngredients(List<String> ingredients) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    if (ingredients.isEmpty) {
+      return [];
+    }
+
+    try {
+      // Build ingredients string for API
+      final ingredientsString = ingredients.join(',');
+      final url = Uri.parse('$_baseUrl/by-ingredients?ingredients=$ingredientsString&app_id=$_appId&app_key=$_appKey');
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return _parseEdamamResponse(data);
+      } else {
+        print('Erro na API: ${response.statusCode}');
+        // Fallback to mock data with filtering
+        return _getFilteredMockRecipes(ingredients);
+      }
+    } catch (e) {
+      print('Erro ao buscar receitas: $e');
+      // Fallback to mock data with filtering
+      return _getFilteredMockRecipes(ingredients);
+    }
+  }
+
+  List<Recipe> _parseEdamamResponse(Map<String, dynamic> data) {
+    final List<Recipe> recipes = [];
     
-    final allRecipes = await getRecipes();
+    if (data.containsKey('hits') && data['hits'] != null) {
+      for (var hit in data['hits']) {
+        try {
+          final recipeData = hit['recipe'];
+          recipes.add(_mapEdamamRecipe(recipeData));
+        } catch (e) {
+          print('Erro ao processar receita: $e');
+        }
+      }
+    }
     
-    // Filter recipes that match available ingredients
-    final matchingRecipes = allRecipes.where((recipe) {
+    return recipes;
+  }
+
+  Recipe _mapEdamamRecipe(Map<String, dynamic> data) {
+    final ingredients = <String>[];
+    if (data['ingredientLines'] != null) {
+      for (var ingredient in data['ingredientLines']) {
+        ingredients.add(ingredient.toString());
+      }
+    }
+
+    final instructions = <String>[];
+    if (data['instructionLines'] != null) {
+      for (var instruction in data['instructionLines']) {
+        instructions.add(instruction.toString());
+      }
+    } else if (data['url'] != null) {
+      instructions.add('Para instruções detalhadas, visite: ${data['url']}');
+    } else {
+      instructions.add('Instruções não disponíveis');
+    }
+
+    // Determine difficulty based on time and ingredients
+    final prepTime = (data['totalTime'] as num?)?.toInt() ?? 30;
+    String difficulty = 'Média';
+    if (prepTime < 15) {
+      difficulty = 'Fácil';
+    } else if (prepTime > 60) {
+      difficulty = 'Difícil';
+    }
+
+    // Get cuisine from tags or use default
+    String cuisine = 'Internacional';
+    if (data['cuisineType'] != null && data['cuisineType'].isNotEmpty) {
+      cuisine = data['cuisineType'][0].toString();
+    } else if (data['mealType'] != null && data['mealType'].isNotEmpty) {
+      cuisine = data['mealType'][0].toString();
+    }
+
+    return Recipe(
+      id: data['uri'] ?? data['id']?.toString() ?? DateTime.now().toString(),
+      title: data['label'] ?? 'Receita sem nome',
+      description: data['source'] ?? 'Receita deliciosa',
+      ingredients: ingredients,
+      instructions: instructions,
+      prepTime: prepTime,
+      difficulty: difficulty,
+      imageUrl: data['image'] as String?,
+      cuisine: cuisine,
+    );
+  }
+
+  List<Recipe> _getFilteredMockRecipes(List<String> ingredients) {
+    final matchingRecipes = _mockRecipes.where((recipe) {
       final score = recipe.calculateMatchScore(ingredients);
       return score > 0;
     }).toList();
@@ -136,8 +230,7 @@ class RecipeService {
   }
 
   Future<Recipe?> getRecipeById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    
+    // For now, search in mock recipes
     try {
       return _mockRecipes.firstWhere((recipe) => recipe.id == id);
     } catch (e) {
@@ -146,12 +239,28 @@ class RecipeService {
   }
 
   Future<List<Recipe>> searchRecipes(String query) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    
-    final allRecipes = await getRecipes();
+    try {
+      final url = Uri.parse('$_baseUrl?type=public&q=$query&app_id=$_appId&app_key=$_appKey');
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return _parseEdamamResponse(data);
+      } else {
+        print('Erro na API: ${response.statusCode}');
+        return _searchMockRecipes(query);
+      }
+    } catch (e) {
+      print('Erro ao buscar receitas: $e');
+      return _searchMockRecipes(query);
+    }
+  }
+
+  List<Recipe> _searchMockRecipes(String query) {
     final lowerQuery = query.toLowerCase();
     
-    return allRecipes.where((recipe) {
+    return _mockRecipes.where((recipe) {
       return recipe.title.toLowerCase().contains(lowerQuery) ||
           recipe.description.toLowerCase().contains(lowerQuery) ||
           recipe.cuisine.toLowerCase().contains(lowerQuery) ||

@@ -40,6 +40,12 @@ dependencies:
   
   # Local Storage
   shared_preferences: ^2.2.3
+  
+  # HTTP Client
+  http: ^1.2.0
+  
+  # Image caching
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_test:

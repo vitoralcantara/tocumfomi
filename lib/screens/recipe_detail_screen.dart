@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import '../state/app_state.dart';
@@ -39,148 +40,172 @@ class RecipeDetailScreen extends ConsumerWidget {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title and basic info
-              Text(
-                recipe.title,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                recipe.description,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[700],
-                    ),
-              ),
-              const SizedBox(height: 16),
-
-              // Meta info
-              Row(
-                children: [
-                  _buildInfoChip(
-                    context,
-                    Icons.access_time,
-                    '${recipe.prepTime} min',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (recipe.imageUrl != null)
+              CachedNetworkImage(
+                imageUrl: recipe.imageUrl!,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  height: 200,
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: CircularProgressIndicator(),
                   ),
-                  const SizedBox(width: 12),
-                  _buildInfoChip(
-                    context,
-                    Icons.signal_cellular_alt,
-                    recipe.difficulty,
-                  ),
-                  const SizedBox(width: 12),
-                  _buildInfoChip(
-                    context,
-                    Icons.restaurant,
-                    recipe.cuisine,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Match score
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: _getMatchColor(context, matchScore, recipe.ingredients.length),
-                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          color: Theme.of(context).colorScheme.onSecondaryContainer,
+                errorWidget: (context, url, error) => Container(
+                  height: 200,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.restaurant, size: 50),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title and basic info
+                  Text(
+                    recipe.title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 8),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    recipe.description,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[700],
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Meta info
+                  Row(
+                    children: [
+                      _buildInfoChip(
+                        context,
+                        Icons.access_time,
+                        '${recipe.prepTime} min',
+                      ),
+                      const SizedBox(width: 12),
+                      _buildInfoChip(
+                        context,
+                        Icons.signal_cellular_alt,
+                        recipe.difficulty,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildInfoChip(
+                        context,
+                        Icons.restaurant,
+                        recipe.cuisine,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Match score
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _getMatchColor(context, matchScore, recipe.ingredients.length),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Theme.of(context).colorScheme.onSecondaryContainer,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Ingredientes Disponíveis',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         Text(
-                          'Ingredientes Disponíveis',
+                          '$matchScore de ${recipe.ingredients.length} ingredientes disponíveis',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSecondaryContainer,
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value: matchScore / recipe.ingredients.length,
+                          backgroundColor: Colors.white.withValues(alpha: 0.3),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '$matchScore de ${recipe.ingredients.length} ingredientes disponíveis',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    LinearProgressIndicator(
-                      value: matchScore / recipe.ingredients.length,
-                      backgroundColor: Colors.white.withValues(alpha: 0.3),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Ingredients section
-              _buildSectionTitle(context, 'Ingredientes'),
-              const SizedBox(height: 12),
-              _buildIngredientsList(context, recipe.ingredients, ingredients),
-              const SizedBox(height: 24),
-
-              // Missing ingredients
-              if (missingIngredients.isNotEmpty) ...[
-                _buildSectionTitle(context, 'Ingredientes Faltantes'),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange[200]!),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                  const SizedBox(height: 24),
+
+                  // Ingredients section
+                  _buildSectionTitle(context, 'Ingredientes'),
+                  const SizedBox(height: 12),
+                  _buildIngredientsList(context, recipe.ingredients, ingredients),
+                  const SizedBox(height: 24),
+
+                  // Missing ingredients
+                  if (missingIngredients.isNotEmpty) ...[
+                    _buildSectionTitle(context, 'Ingredientes Faltantes'),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange[200]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.shopping_cart, color: Colors.orange[700]),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Você precisa comprar:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange[900],
-                            ),
+                          Row(
+                            children: [
+                              Icon(Icons.shopping_cart, color: Colors.orange[700]),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Você precisa comprar:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange[900],
+                                ),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 8),
+                          ...missingIngredients.map((ingredient) => Padding(
+                                padding: const EdgeInsets.only(left: 32, top: 4),
+                                child: Text(
+                                  '• $ingredient',
+                                  style: TextStyle(color: Colors.orange[900]),
+                                ),
+                              )),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      ...missingIngredients.map((ingredient) => Padding(
-                            padding: const EdgeInsets.only(left: 32, top: 4),
-                            child: Text(
-                              '• $ingredient',
-                              style: TextStyle(color: Colors.orange[900]),
-                            ),
-                          )),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
-              // Instructions section
-              _buildSectionTitle(context, 'Modo de Preparo'),
-              const SizedBox(height: 12),
-              _buildInstructionsList(context, recipe.instructions),
-            ],
-          ),
+                  // Instructions section
+                  _buildSectionTitle(context, 'Modo de Preparo'),
+                  const SizedBox(height: 12),
+                  _buildInstructionsList(context, recipe.instructions),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
