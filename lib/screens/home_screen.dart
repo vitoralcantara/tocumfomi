@@ -146,15 +146,17 @@ class HomeScreen extends ConsumerWidget {
   Future<void> _showAddIngredientDialog(BuildContext context, WidgetRef ref) async {
     final ingredients = ref.read(availableIngredientsProvider);
     
-    final result = await showDialog<Ingredient>(
+    final result = await showDialog<List<Ingredient>>(
       context: context,
       builder: (context) => AddIngredientDialog(
         existingIngredients: ingredients,
       ),
     );
 
-    if (result != null) {
-      await ref.read(availableIngredientsProvider.notifier).addIngredient(result);
+    if (result != null && result.isNotEmpty) {
+      for (final ingredient in result) {
+        await ref.read(availableIngredientsProvider.notifier).addIngredient(ingredient);
+      }
     }
   }
 }
