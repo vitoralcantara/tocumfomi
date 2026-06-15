@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import '../state/app_state.dart';
@@ -16,7 +17,7 @@ class RecipesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sugestões de Receitas'),
+        title: Text('recipes.title'.tr()),
         elevation: 2,
       ),
       body: ingredients.isEmpty
@@ -44,7 +45,7 @@ class RecipesScreen extends ConsumerWidget {
                     const Icon(Icons.error_outline, size: 60, color: Colors.red),
                     const SizedBox(height: 16),
                     Text(
-                      'Erro ao carregar receitas',
+                      'recipes.error_loading_recipes'.tr(),
                       style: TextStyle(fontSize: 18, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 8),
@@ -72,7 +73,7 @@ class RecipesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Adicione ingredientes primeiro',
+            'recipes.add_ingredients_first'.tr(),
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[700],
@@ -81,7 +82,7 @@ class RecipesScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Voltar'),
+            child: Text('recipes.back'.tr()),
           ),
         ],
       ),
@@ -100,7 +101,7 @@ class RecipesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Nenhuma receita encontrada',
+            'recipes.no_recipes_found'.tr(),
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[700],
@@ -110,7 +111,7 @@ class RecipesScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Tente adicionar mais ingredientes ou diferentes tipos',
+              'recipes.try_more_ingredients'.tr(),
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[500],
@@ -121,7 +122,7 @@ class RecipesScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Adicionar Mais Ingredientes'),
+            child: Text('recipes.add_more_ingredients'.tr()),
           ),
         ],
       ),
@@ -156,7 +157,7 @@ class RecipesScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${recipes.length} receita(s) encontrada(s)',
+                    'recipes.recipes_found'.tr(args: ['${recipes.length}']),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.bold,

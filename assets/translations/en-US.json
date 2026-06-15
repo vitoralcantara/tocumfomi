@@ -1,0 +1,63 @@
+{
+  "app_title": "Food Suggestions",
+  "home": {
+    "title": "Food Suggestions",
+    "available_ingredients": "Available Ingredients",
+    "add_ingredients_description": "Add the ingredients you have at home",
+    "no_ingredients_added": "No ingredients added yet",
+    "tap_to_add": "Tap + to add",
+    "add": "Add",
+    "get_recipe_suggestions": "View Recipe Suggestions",
+    "min_ingredients_required": "Add at least 2 ingredients to see suggestions"
+  },
+  "recipes": {
+    "title": "Recipe Suggestions",
+    "add_ingredients_first": "Add ingredients first",
+    "back": "Back",
+    "no_recipes_found": "No recipes found",
+    "try_more_ingredients": "Try adding more ingredients or different types",
+    "add_more_ingredients": "Add More Ingredients",
+    "recipes_found": "{} recipe(s) found",
+    "error_loading_recipes": "Error loading recipes"
+  },
+  "recipe_detail": {
+    "title": "Recipe Details",
+    "ingredients": "Ingredients",
+    "instructions": "Instructions",
+    "servings": "Servings",
+    "time": "Time",
+    "difficulty": "Difficulty",
+    "calories": "Calories",
+    "cuisine": "Cuisine",
+    "back": "Back",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "missing_ingredients": "Missing Ingredients",
+    "need_to_buy": "You need to buy:",
+    "ingredients_available": "ingredients available",
+    "instructions": "Instructions"
+  },
+  "add_ingredient_dialog": {
+    "title": "Add Ingredients",
+    "selected": "selected",
+    "selected_plural": "selected",
+    "search_hint": "Search ingredients...",
+    "no_ingredients_found": "No ingredients found",
+    "cancel": "Cancel",
+    "add": "Add",
+    "add_with_count": "Add ({})"
+  },
+  "recipe_card": {
+    "match": "Match: {} ingredients"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "time_units": {
+    "minutes": "minutes",
+    "hour": "hour",
+    "hours": "hours"
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import '../state/app_state.dart';
@@ -25,7 +26,7 @@ class RecipeDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalhes da Receita'),
+        title: Text('recipe_detail.title'.tr()),
         elevation: 2,
         actions: [
           IconButton(
@@ -125,7 +126,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Ingredientes Disponíveis',
+                              'home.available_ingredients'.tr(),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -136,7 +137,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '$matchScore de ${recipe.ingredients.length} ingredientes disponíveis',
+                          '$matchScore de ${recipe.ingredients.length} ${'recipe_detail.ingredients_available'.tr()}',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSecondaryContainer,
                           ),
@@ -152,14 +153,14 @@ class RecipeDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Ingredients section
-                  _buildSectionTitle(context, 'Ingredientes'),
+                  _buildSectionTitle(context, 'recipe_detail.ingredients'.tr()),
                   const SizedBox(height: 12),
                   _buildIngredientsList(context, recipe.ingredients, ingredients),
                   const SizedBox(height: 24),
 
                   // Missing ingredients
                   if (missingIngredients.isNotEmpty) ...[
-                    _buildSectionTitle(context, 'Ingredientes Faltantes'),
+                    _buildSectionTitle(context, 'recipe_detail.missing_ingredients'.tr()),
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -176,7 +177,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                               Icon(Icons.shopping_cart, color: Colors.orange[700]),
                               const SizedBox(width: 8),
                               Text(
-                                'Você precisa comprar:',
+                                'recipe_detail.need_to_buy'.tr(),
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.orange[900],
@@ -199,7 +200,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                   ],
 
                   // Instructions section
-                  _buildSectionTitle(context, 'Modo de Preparo'),
+                  _buildSectionTitle(context, 'recipe_detail.instructions'.tr()),
                   const SizedBox(height: 12),
                   _buildInstructionsList(context, recipe.instructions),
                 ],

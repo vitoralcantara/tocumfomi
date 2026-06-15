@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../state/app_state.dart';
 import '../widgets/ingredient_chip.dart';
 import '../widgets/add_ingredient_dialog.dart';
@@ -14,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dicas de Comida'),
+        title: Text('home.title'.tr()),
         elevation: 2,
       ),
       body: Padding(
@@ -23,14 +24,14 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ingredientes Disponíveis',
+              'home.available_ingredients'.tr(),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Adicione os ingredientes que você tem em casa',
+              'home.add_ingredients_description'.tr(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -48,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Nenhum ingrediente adicionado',
+                      'home.no_ingredients_added'.tr(),
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey[600],
@@ -56,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Toque no + para adicionar',
+                      'home.tap_to_add'.tr(),
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[500],
@@ -97,7 +98,7 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddIngredientDialog(context, ref),
         icon: const Icon(Icons.add),
-        label: const Text('Adicionar'),
+        label: Text('home.add'.tr()),
       ),
     );
   }
@@ -111,7 +112,7 @@ class HomeScreen extends ConsumerWidget {
           Navigator.pushNamed(context, '/recipes');
         },
         icon: const Icon(Icons.restaurant_menu),
-        label: const Text('Ver Sugestões de Receitas'),
+        label: Text('home.get_recipe_suggestions'.tr()),
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -134,7 +135,7 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Adicione pelo menos 2 ingredientes para ver sugestões',
+              'home.min_ingredients_required'.tr(),
               style: TextStyle(color: Colors.orange[900]),
             ),
           ),

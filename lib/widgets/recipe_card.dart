@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/recipe.dart';
 
 class RecipeCard extends StatelessWidget {
@@ -114,7 +115,7 @@ class RecipeCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      'Match: $matchScore/${recipe.ingredients.length} ingredientes',
+                      'recipe_card.match'.tr(args: ['$matchScore/${recipe.ingredients.length}']),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSecondaryContainer,
                         fontWeight: FontWeight.bold,

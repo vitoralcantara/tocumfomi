@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/ingredient.dart';
 import '../services/ingredient_service.dart';
 
@@ -68,14 +69,14 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBar(
-              title: const Text('Adicionar Ingredientes'),
+              title: Text('add_ingredient_dialog.title'.tr()),
               elevation: 0,
               actions: [
                 if (selectedCount > 0)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Chip(
-                      label: Text('$selectedCount selecionado${selectedCount > 1 ? 's' : ''}'),
+                      label: Text('$selectedCount ${selectedCount > 1 ? 'add_ingredient_dialog.selected_plural'.tr() : 'add_ingredient_dialog.selected'.tr()}'),
                       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                     ),
                   ),
@@ -86,7 +87,7 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
               child: TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  hintText: 'Pesquisar ingredientes...',
+                  hintText: 'add_ingredient_dialog.search_hint'.tr(),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -136,15 +137,15 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
                 ),
               )
             else
-              const Padding(
-                padding: EdgeInsets.all(32),
+              Padding(
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   children: [
-                    Icon(Icons.search_off, size: 48, color: Colors.grey),
-                    SizedBox(height: 16),
+                    const Icon(Icons.search_off, size: 48, color: Colors.grey),
+                    const SizedBox(height: 16),
                     Text(
-                      'Nenhum ingrediente encontrado',
-                      style: TextStyle(color: Colors.grey),
+                      'add_ingredient_dialog.no_ingredients_found'.tr(),
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
@@ -156,7 +157,7 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancelar'),
+                      child: Text('add_ingredient_dialog.cancel'.tr()),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -169,8 +170,8 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
                           : null,
                       child: Text(
                         selectedCount > 0
-                            ? 'Adicionar ($selectedCount)'
-                            : 'Adicionar',
+                            ? 'add_ingredient_dialog.add_with_count'.tr(args: ['$selectedCount'])
+                            : 'add_ingredient_dialog.add'.tr(),
                       ),
                     ),
                   ),

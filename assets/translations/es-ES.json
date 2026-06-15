@@ -1,0 +1,63 @@
+{
+  "app_title": "Sugerencias de Comida",
+  "home": {
+    "title": "Sugerencias de Comida",
+    "available_ingredients": "Ingredientes Disponibles",
+    "add_ingredients_description": "Añade los ingredientes que tienes en casa",
+    "no_ingredients_added": "Ningún ingrediente añadido",
+    "tap_to_add": "Toca + para añadir",
+    "add": "Añadir",
+    "get_recipe_suggestions": "Ver Sugerencias de Recetas",
+    "min_ingredients_required": "Añade al menos 2 ingredientes para ver sugerencias"
+  },
+  "recipes": {
+    "title": "Sugerencias de Recetas",
+    "add_ingredients_first": "Añade ingredientes primero",
+    "back": "Volver",
+    "no_recipes_found": "No se encontraron recetas",
+    "try_more_ingredients": "Intenta añadir más ingredientes o diferentes tipos",
+    "add_more_ingredients": "Añadir Más Ingredientes",
+    "recipes_found": "{} receta(s) encontrada(s)",
+    "error_loading_recipes": "Error al cargar recetas"
+  },
+  "recipe_detail": {
+    "title": "Detalles de la Receta",
+    "ingredients": "Ingredientes",
+    "instructions": "Instrucciones",
+    "servings": "Porciones",
+    "time": "Tiempo",
+    "difficulty": "Dificultad",
+    "calories": "Calorías",
+    "cuisine": "Cocina",
+    "back": "Volver",
+    "favorite": "Favorito",
+    "unfavorite": "No favorito",
+    "missing_ingredients": "Ingredientes Faltantes",
+    "need_to_buy": "Necesitas comprar:",
+    "ingredients_available": "ingredientes disponibles",
+    "instructions": "Modo de Preparo"
+  },
+  "add_ingredient_dialog": {
+    "title": "Añadir Ingredientes",
+    "selected": "seleccionado",
+    "selected_plural": "seleccionados",
+    "search_hint": "Buscar ingredientes...",
+    "no_ingredients_found": "No se encontraron ingredientes",
+    "cancel": "Cancelar",
+    "add": "Añadir",
+    "add_with_count": "Añadir ({})"
+  },
+  "recipe_card": {
+    "match": "Match: {} ingredientes"
+  },
+  "difficulty": {
+    "easy": "Fácil",
+    "medium": "Media",
+    "hard": "Difícil"
+  },
+  "time_units": {
+    "minutes": "minutos",
+    "hour": "hora",
+    "hours": "horas"
+  }
+}

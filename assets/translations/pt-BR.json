@@ -1,0 +1,63 @@
+{
+  "app_title": "Dicas de Comida",
+  "home": {
+    "title": "Dicas de Comida",
+    "available_ingredients": "Ingredientes Disponíveis",
+    "add_ingredients_description": "Adicione os ingredientes que você tem em casa",
+    "no_ingredients_added": "Nenhum ingrediente adicionado",
+    "tap_to_add": "Toque no + para adicionar",
+    "add": "Adicionar",
+    "get_recipe_suggestions": "Ver Sugestões de Receitas",
+    "min_ingredients_required": "Adicione pelo menos 2 ingredientes para ver sugestões"
+  },
+  "recipes": {
+    "title": "Sugestões de Receitas",
+    "add_ingredients_first": "Adicione ingredientes primeiro",
+    "back": "Voltar",
+    "no_recipes_found": "Nenhuma receita encontrada",
+    "try_more_ingredients": "Tente adicionar mais ingredientes ou diferentes tipos",
+    "add_more_ingredients": "Adicionar Mais Ingredientes",
+    "recipes_found": "{} receita(s) encontrada(s)",
+    "error_loading_recipes": "Erro ao carregar receitas"
+  },
+  "recipe_detail": {
+    "title": "Detalhes da Receita",
+    "ingredients": "Ingredientes",
+    "instructions": "Instruções",
+    "servings": "Porções",
+    "time": "Tempo",
+    "difficulty": "Dificuldade",
+    "calories": "Calorias",
+    "cuisine": "Cozinha",
+    "back": "Voltar",
+    "favorite": "Favoritar",
+    "unfavorite": "Desfavoritar",
+    "missing_ingredients": "Ingredientes Faltantes",
+    "need_to_buy": "Você precisa comprar:",
+    "ingredients_available": "ingredientes disponíveis",
+    "instructions": "Modo de Preparo"
+  },
+  "add_ingredient_dialog": {
+    "title": "Adicionar Ingredientes",
+    "selected": "selecionado",
+    "selected_plural": "selecionados",
+    "search_hint": "Pesquisar ingredientes...",
+    "no_ingredients_found": "Nenhum ingrediente encontrado",
+    "cancel": "Cancelar",
+    "add": "Adicionar",
+    "add_with_count": "Adicionar ({})"
+  },
+  "recipe_card": {
+    "match": "Match: {} ingredientes"
+  },
+  "difficulty": {
+    "easy": "Fácil",
+    "medium": "Média",
+    "hard": "Difícil"
+  },
+  "time_units": {
+    "minutes": "minutos",
+    "hour": "hora",
+    "hours": "horas"
+  }
+}
