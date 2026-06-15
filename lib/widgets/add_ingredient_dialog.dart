@@ -72,40 +72,45 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Adicionar Ingrediente'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              hintText: 'Digite o ingrediente...',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: _filterSuggestions,
-            onSubmitted: (value) {
-              if (value.trim().isNotEmpty) {
-                Navigator.of(context).pop(value.trim());
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          if (_filteredSuggestions.isNotEmpty)
-            Container(
-              constraints: const BoxConstraints(maxHeight: 200),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _filteredSuggestions.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(_filteredSuggestions[index]),
-                    onTap: () {
-                      Navigator.of(context).pop(_filteredSuggestions[index]);
-                    },
-                  );
-                },
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                hintText: 'Digite o ingrediente...',
+                border: OutlineInputBorder(),
               ),
+              onChanged: _filterSuggestions,
+              onSubmitted: (value) {
+                if (value.trim().isNotEmpty) {
+                  Navigator.of(context).pop(value.trim());
+                }
+              },
             ),
-        ],
+            const SizedBox(height: 16),
+            if (_filteredSuggestions.isNotEmpty)
+              Flexible(
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _filteredSuggestions.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(_filteredSuggestions[index]),
+                        onTap: () {
+                          Navigator.of(context).pop(_filteredSuggestions[index]);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
