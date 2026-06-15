@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
+import 'translation_service.dart';
 
 class RecipeService {
   // Edamam API credentials
@@ -224,7 +225,7 @@ class RecipeService {
       final measure = data['strMeasure$i'];
       if (ingredient != null && ingredient.toString().isNotEmpty) {
         final measureStr = measure != null ? ' ($measure)' : '';
-        ingredients.add('$ingredient$measureStr');
+        ingredients.add(TranslationService.translateWithDictionary('$ingredient$measureStr'));
       }
     }
 
@@ -244,23 +245,23 @@ class RecipeService {
     }
 
     // Determine difficulty based on ingredients count
-    String difficulty = 'Média';
+    String difficulty = TranslationService.translateWithDictionary('medium');
     if (ingredients.length < 5) {
-      difficulty = 'Fácil';
+      difficulty = TranslationService.translateWithDictionary('easy');
     } else if (ingredients.length > 10) {
-      difficulty = 'Difícil';
+      difficulty = TranslationService.translateWithDictionary('hard');
     }
 
     // Get category as cuisine
-    String cuisine = data['strCategory'] ?? 'Internacional';
+    String cuisine = TranslationService.translateWithDictionary(data['strCategory'] ?? 'Internacional');
     if (data['strArea'] != null) {
-      cuisine = '${data['strArea']}';
+      cuisine = TranslationService.translateWithDictionary(data['strArea']);
     }
 
     return Recipe(
       id: data['idMeal']?.toString() ?? data['idMeal']?.toString() ?? DateTime.now().toString(),
-      title: data['strMeal'] ?? 'Receita sem nome',
-      description: data['strCategory'] ?? 'Receita deliciosa',
+      title: TranslationService.translateWithDictionary(data['strMeal'] ?? 'Receita sem nome'),
+      description: TranslationService.translateWithDictionary(data['strCategory'] ?? 'Receita deliciosa'),
       ingredients: ingredients,
       instructions: instructions,
       prepTime: 30, // TheMealDB doesn't provide prep time
@@ -308,25 +309,22 @@ class RecipeService {
 
     // Determine difficulty based on time and ingredients
     final prepTime = (data['totalTime'] as num?)?.toInt() ?? 30;
-    String difficulty = 'Média';
+    String difficulty = TranslationService.translateWithDictionary('medium');
     if (prepTime < 15) {
-      difficulty = 'Fácil';
+      difficulty = TranslationService.translateWithDictionary('easy');
     } else if (prepTime > 60) {
-      difficulty = 'Difícil';
+      difficulty = TranslationService.translateWithDictionary('hard');
     }
 
     // Get cuisine from tags or use default
-    String cuisine = 'Internacional';
-    if (data['cuisineType'] != null && data['cuisineType'].isNotEmpty) {
-      cuisine = data['cuisineType'][0].toString();
-    } else if (data['mealType'] != null && data['mealType'].isNotEmpty) {
-      cuisine = data['mealType'][0].toString();
-    }
+    String cuisine = TranslationService.translateWithDictionary(data['cuisineType']?.toString() ?? 
+                          data['mealType']?.toString() ?? 
+                          'Internacional');
 
     return Recipe(
       id: data['uri'] ?? data['id']?.toString() ?? DateTime.now().toString(),
-      title: data['label'] ?? 'Receita sem nome',
-      description: data['source'] ?? 'Receita deliciosa',
+      title: TranslationService.translateWithDictionary(data['label'] ?? 'Receita sem nome'),
+      description: TranslationService.translateWithDictionary(data['source'] ?? 'Receita deliciosa'),
       ingredients: ingredients,
       instructions: instructions,
       prepTime: prepTime,
