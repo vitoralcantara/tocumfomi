@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/recipe.dart';
+import '../models/ingredient.dart';
 import '../state/app_state.dart';
 import '../widgets/recipe_card.dart';
 
@@ -87,7 +88,7 @@ class RecipesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNoRecipesState(BuildContext context, List<String> ingredients) {
+  Widget _buildNoRecipesState(BuildContext context, List<Ingredient> ingredients) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -130,10 +131,12 @@ class RecipesScreen extends ConsumerWidget {
   Widget _buildRecipesList(
     BuildContext context,
     List<Recipe> recipes,
-    List<String> ingredients,
+    List<Ingredient> ingredients,
     List<String> favoriteRecipes,
     WidgetRef ref,
   ) {
+    final ingredientNames = ingredients.map((ing) => ing.name).toList();
+    
     return Column(
       children: [
         Padding(
@@ -169,7 +172,7 @@ class RecipesScreen extends ConsumerWidget {
             itemCount: recipes.length,
             itemBuilder: (context, index) {
               final recipe = recipes[index];
-              final matchScore = recipe.calculateMatchScore(ingredients);
+              final matchScore = recipe.calculateMatchScore(ingredientNames);
               final isFavorite = favoriteRecipes.contains(recipe.id);
 
               return RecipeCard(

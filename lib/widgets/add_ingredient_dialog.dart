@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../models/ingredient.dart';
+import '../services/ingredient_service.dart';
 
 class AddIngredientDialog extends StatefulWidget {
-  final List<String> existingIngredients;
+  final List<Ingredient> existingIngredients;
 
   const AddIngredientDialog({
     super.key,
@@ -14,36 +16,12 @@ class AddIngredientDialog extends StatefulWidget {
 
 class _AddIngredientDialogState extends State<AddIngredientDialog> {
   final TextEditingController _controller = TextEditingController();
-  final List<String> _suggestions = [
-    'tomate',
-    'cebola',
-    'alho',
-    'ovos',
-    'arroz',
-    'feijão',
-    'carne',
-    'frango',
-    'peixe',
-    'queijo',
-    'manteiga',
-    'azeite',
-    'limão',
-    'sal',
-    'pimenta',
-    'macarrão',
-    'leite',
-    'farinha',
-    'batata',
-    'cenoura',
-  ];
-  List<String> _filteredSuggestions = [];
+  List<Ingredient> _filteredSuggestions = [];
 
   @override
   void initState() {
     super.initState();
-    _filteredSuggestions = _suggestions
-        .where((ing) => !widget.existingIngredients.contains(ing))
-        .toList();
+    _filterSuggestions('');
   }
 
   @override
@@ -55,14 +33,14 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
   void _filterSuggestions(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredSuggestions = _suggestions
-            .where((ing) => !widget.existingIngredients.contains(ing))
+        _filteredSuggestions = IngredientService.getAllIngredients()
+            .where((ing) => !widget.existingIngredients
+                .any((existing) => existing.id == ing.id))
             .toList();
       } else {
-        _filteredSuggestions = _suggestions
-            .where((ing) =>
-                ing.toLowerCase().contains(query.toLowerCase()) &&
-                !widget.existingIngredients.contains(ing))
+        _filteredSuggestions = IngredientService.searchIngredients(query)
+            .where((ing) => !widget.existingIngredients
+                .any((existing) => existing.id == ing.id))
             .toList();
       }
     });
@@ -86,7 +64,9 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
               onChanged: _filterSuggestions,
               onSubmitted: (value) {
                 if (value.trim().isNotEmpty) {
-                  Navigator.of(context).pop(value.trim());
+                  final customIngredient =
+                      IngredientService.createCustomIngredient(value.trim());
+                  Navigator.of(context).pop(customIngredient);
                 }
               },
             ),
@@ -99,10 +79,18 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
                     shrinkWrap: true,
                     itemCount: _filteredSuggestions.length,
                     itemBuilder: (context, index) {
+                      final ingredient = _filteredSuggestions[index];
                       return ListTile(
-                        title: Text(_filteredSuggestions[index]),
+                        leading: ingredient.emoji != null
+                            ? Text(
+                                ingredient.emoji!,
+                                style: const TextStyle(fontSize: 24),
+                              )
+                            : const Icon(Icons.restaurant, size: 24),
+                        title: Text(ingredient.name),
+                        subtitle: Text(ingredient.category),
                         onTap: () {
-                          Navigator.of(context).pop(_filteredSuggestions[index]);
+                          Navigator.of(context).pop(ingredient);
                         },
                       );
                     },
@@ -119,7 +107,10 @@ class _AddIngredientDialogState extends State<AddIngredientDialog> {
         ),
         ElevatedButton(
           onPressed: _controller.text.trim().isNotEmpty
-              ? () => Navigator.of(context).pop(_controller.text.trim())
+              ? () => Navigator.of(context).pop(
+                    IngredientService.createCustomIngredient(
+                        _controller.text.trim()),
+                  )
               : null,
           child: const Text('Adicionar'),
         ),

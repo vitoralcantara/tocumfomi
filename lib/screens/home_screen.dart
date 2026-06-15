@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../state/app_state.dart';
 import '../widgets/ingredient_chip.dart';
 import '../widgets/add_ingredient_dialog.dart';
+import '../models/ingredient.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -77,7 +78,7 @@ class HomeScreen extends ConsumerWidget {
                           onDelete: () {
                             ref
                                 .read(availableIngredientsProvider.notifier)
-                                .removeIngredient(ingredient);
+                                .removeIngredient(ingredient.id);
                           },
                         );
                       }).toList(),
@@ -145,14 +146,14 @@ class HomeScreen extends ConsumerWidget {
   Future<void> _showAddIngredientDialog(BuildContext context, WidgetRef ref) async {
     final ingredients = ref.read(availableIngredientsProvider);
     
-    final result = await showDialog<String>(
+    final result = await showDialog<Ingredient>(
       context: context,
       builder: (context) => AddIngredientDialog(
         existingIngredients: ingredients,
       ),
     );
 
-    if (result != null && result.trim().isNotEmpty) {
+    if (result != null) {
       await ref.read(availableIngredientsProvider.notifier).addIngredient(result);
     }
   }

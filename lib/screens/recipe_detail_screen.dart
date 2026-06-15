@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/recipe.dart';
+import '../models/ingredient.dart';
 import '../state/app_state.dart';
 
 class RecipeDetailScreen extends ConsumerWidget {
@@ -13,9 +14,10 @@ class RecipeDetailScreen extends ConsumerWidget {
     final favoriteRecipes = ref.watch(favoriteRecipesProvider);
     final isFavorite = favoriteRecipes.contains(recipe.id);
 
-    final matchScore = recipe.calculateMatchScore(ingredients);
+    final ingredientNames = ingredients.map((ing) => ing.name).toList();
+    final matchScore = recipe.calculateMatchScore(ingredientNames);
     final missingIngredients = recipe.ingredients
-        .where((ing) => !ingredients.any(
+        .where((ing) => !ingredientNames.any(
               (available) => ing.toLowerCase().contains(available.toLowerCase()),
             ))
         .toList();
@@ -224,15 +226,17 @@ class RecipeDetailScreen extends ConsumerWidget {
   Widget _buildIngredientsList(
     BuildContext context,
     List<String> recipeIngredients,
-    List<String> availableIngredients,
+    List<Ingredient> availableIngredients,
   ) {
+    final availableIngredientNames = availableIngredients.map((ing) => ing.name).toList();
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: recipeIngredients.map((ingredient) {
-            final isAvailable = availableIngredients.any(
+            final isAvailable = availableIngredientNames.any(
               (available) => ingredient.toLowerCase().contains(available.toLowerCase()),
             );
             return Padding(

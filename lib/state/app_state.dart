@@ -1,35 +1,47 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/recipe_service.dart';
+import '../services/ingredient_service.dart';
 import '../models/recipe.dart';
+import '../models/ingredient.dart';
 
 // Service provider
 final recipeServiceProvider = Provider<RecipeService>((ref) {
   return RecipeService();
 });
 
+final ingredientServiceProvider = Provider<IngredientService>((ref) {
+  return IngredientService();
+});
+
 // Available ingredients provider
-class AvailableIngredientsNotifier extends StateNotifier<List<String>> {
+class AvailableIngredientsNotifier extends StateNotifier<List<Ingredient>> {
   AvailableIngredientsNotifier() : super([]) {
     _loadIngredients();
   }
 
   Future<void> _loadIngredients() async {
     final prefs = await SharedPreferences.getInstance();
-    final ingredients = prefs.getStringList('available_ingredients') ?? [];
+    final ingredientIds = prefs.getStringList('available_ingredients') ?? [];
+    
+    final ingredients = ingredientIds
+        .map((id) => IngredientService.getIngredient(id))
+        .whereType<Ingredient>()
+        .toList();
+    
     state = ingredients;
   }
 
-  Future<void> addIngredient(String ingredient) async {
-    if (!state.contains(ingredient)) {
+  Future<void> addIngredient(Ingredient ingredient) async {
+    if (!state.any((ing) => ing.id == ingredient.id)) {
       final newState = [...state, ingredient];
       state = newState;
       await _saveIngredients();
     }
   }
 
-  Future<void> removeIngredient(String ingredient) async {
-    final newState = state.where((ing) => ing != ingredient).toList();
+  Future<void> removeIngredient(String ingredientId) async {
+    final newState = state.where((ing) => ing.id != ingredientId).toList();
     state = newState;
     await _saveIngredients();
   }
@@ -41,12 +53,13 @@ class AvailableIngredientsNotifier extends StateNotifier<List<String>> {
 
   Future<void> _saveIngredients() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('available_ingredients', state);
+    final ingredientIds = state.map((ing) => ing.id).toList();
+    await prefs.setStringList('available_ingredients', ingredientIds);
   }
 }
 
 final availableIngredientsProvider =
-    StateNotifierProvider<AvailableIngredientsNotifier, List<String>>((ref) {
+    StateNotifierProvider<AvailableIngredientsNotifier, List<Ingredient>>((ref) {
   return AvailableIngredientsNotifier();
 });
 
@@ -59,7 +72,8 @@ final recipesProvider = FutureProvider<List<Recipe>>((ref) async {
     return [];
   }
   
-  return recipeService.getRecipesByIngredients(ingredients);
+  final ingredientNames = ingredients.map((ing) => ing.name).toList();
+  return recipeService.getRecipesByIngredients(ingredientNames);
 });
 
 // Favorite recipes provider

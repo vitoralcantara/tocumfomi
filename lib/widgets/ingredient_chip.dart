@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/ingredient.dart';
 
 class IngredientChip extends StatelessWidget {
-  final String ingredient;
+  final Ingredient ingredient;
   final VoidCallback onDelete;
   final VoidCallback? onTap;
 
@@ -17,8 +18,14 @@ class IngredientChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Chip(
+        avatar: ingredient.emoji != null
+            ? Text(
+                ingredient.emoji!,
+                style: const TextStyle(fontSize: 18),
+              )
+            : null,
         label: Text(
-          ingredient,
+          ingredient.name,
           style: const TextStyle(fontSize: 14),
         ),
         deleteIcon: const Icon(Icons.close, size: 18),
