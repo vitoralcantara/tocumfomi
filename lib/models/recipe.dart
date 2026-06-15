@@ -49,6 +49,30 @@ class Recipe {
     };
   }
 
+  Recipe copyWith({
+    String? id,
+    String? title,
+    String? description,
+    List<String>? ingredients,
+    List<String>? instructions,
+    int? prepTime,
+    String? difficulty,
+    String? imageUrl,
+    String? cuisine,
+  }) {
+    return Recipe(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      ingredients: ingredients ?? this.ingredients,
+      instructions: instructions ?? this.instructions,
+      prepTime: prepTime ?? this.prepTime,
+      difficulty: difficulty ?? this.difficulty,
+      imageUrl: imageUrl ?? this.imageUrl,
+      cuisine: cuisine ?? this.cuisine,
+    );
+  }
+
   int calculateMatchScore(List<String> availableIngredients) {
     final matchingIngredients = ingredients.where(
       (ingredient) => availableIngredients.any(

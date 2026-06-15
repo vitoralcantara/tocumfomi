@@ -224,7 +224,7 @@ class RecipeService {
         if (data.containsKey('hits')) {
           print('📦 Quantidade de hits Edamam: ${data['hits'].length}');
         }
-        return _parseEdamamResponse(data);
+        return await _parseEdamamResponse(data);
       } else {
         print('❌ Edamam API erro: ${response.statusCode}');
         print('❌ Response body: ${response.body}');
@@ -255,7 +255,7 @@ class RecipeService {
         if (data.containsKey('meals')) {
           print('📦 Quantidade de meals MealDB: ${data['meals']?.length}');
         }
-        return _parseMealDbResponse(data, ingredients);
+        return await _parseMealDbResponse(data, ingredients);
       } else {
         print('❌ TheMealDB API erro: ${response.statusCode}');
         print('❌ Response body: ${response.body}');
@@ -267,7 +267,7 @@ class RecipeService {
     }
   }
 
-  List<Recipe> _parseMealDbResponse(Map<String, dynamic> data, List<String> availableIngredients) {
+  Future<List<Recipe>> _parseMealDbResponse(Map<String, dynamic> data, List<String> availableIngredients) async {
     print('🔄 Parseando resposta do MealDB...');
     final List<Recipe> recipes = [];
     
@@ -275,7 +275,7 @@ class RecipeService {
       print('🔄 Quantidade de meals para processar: ${data['meals'].length}');
       for (var meal in data['meals']) {
         try {
-          final recipe = _mapMealDbRecipe(meal);
+          final recipe = await _mapMealDbRecipe(meal);
           print('✅ Receita processada: ${recipe.title}');
           recipes.add(recipe);
         } catch (e) {
@@ -307,7 +307,7 @@ class RecipeService {
     return matchingRecipes;
   }
 
-  Recipe _mapMealDbRecipe(Map<String, dynamic> data) {
+  Future<Recipe> _mapMealDbRecipe(Map<String, dynamic> data) async {
     // Parse ingredients from TheMealDB format
     final ingredients = <String>[];
     for (int i = 1; i <= 20; i++) {
@@ -350,10 +350,14 @@ class RecipeService {
       cuisine = TranslationService.translateWithDictionary(data['strArea']);
     }
 
+    // Traduzir título e descrição usando API
+    final title = await TranslationService.translate(data['strMeal'] ?? 'Receita sem nome');
+    final description = await TranslationService.translate(data['strCategory'] ?? 'Receita deliciosa');
+
     return Recipe(
       id: data['idMeal']?.toString() ?? data['idMeal']?.toString() ?? DateTime.now().toString(),
-      title: TranslationService.translateWithDictionary(data['strMeal'] ?? 'Receita sem nome'),
-      description: TranslationService.translateWithDictionary(data['strCategory'] ?? 'Receita deliciosa'),
+      title: title,
+      description: description,
       ingredients: ingredients,
       instructions: instructions,
       prepTime: 30, // TheMealDB doesn't provide prep time
@@ -363,7 +367,7 @@ class RecipeService {
     );
   }
 
-  List<Recipe> _parseEdamamResponse(Map<String, dynamic> data) {
+  Future<List<Recipe>> _parseEdamamResponse(Map<String, dynamic> data) async {
     print('🔄 Parseando resposta da Edamam...');
     final List<Recipe> recipes = [];
     
@@ -372,7 +376,7 @@ class RecipeService {
       for (var hit in data['hits']) {
         try {
           final recipeData = hit['recipe'];
-          final recipe = _mapEdamamRecipe(recipeData);
+          final recipe = await _mapEdamamRecipe(recipeData);
           print('✅ Receita processada: ${recipe.title}');
           recipes.add(recipe);
         } catch (e) {
@@ -387,7 +391,7 @@ class RecipeService {
     return recipes;
   }
 
-  Recipe _mapEdamamRecipe(Map<String, dynamic> data) {
+  Future<Recipe> _mapEdamamRecipe(Map<String, dynamic> data) async {
     final ingredients = <String>[];
     if (data['ingredientLines'] != null) {
       for (var ingredient in data['ingredientLines']) {
@@ -422,10 +426,14 @@ class RecipeService {
                           data['mealType']?.toString() ?? 
                           'Internacional');
 
+    // Traduzir título e descrição usando API se necessário
+    final title = await TranslationService.translate(data['label'] ?? 'Receita sem nome');
+    final description = await TranslationService.translate(data['source'] ?? 'Receita deliciosa');
+
     return Recipe(
       id: data['uri'] ?? data['id']?.toString() ?? DateTime.now().toString(),
-      title: TranslationService.translateWithDictionary(data['label'] ?? 'Receita sem nome'),
-      description: TranslationService.translateWithDictionary(data['source'] ?? 'Receita deliciosa'),
+      title: title,
+      description: description,
       ingredients: ingredients,
       instructions: instructions,
       prepTime: prepTime,
@@ -484,7 +492,7 @@ class RecipeService {
         if (data.containsKey('hits')) {
           print('📦 Quantidade de hits Edamam search: ${data['hits'].length}');
         }
-        return _parseEdamamResponse(data);
+        return await _parseEdamamResponse(data);
       } else {
         print('❌ Edamam API search erro: ${response.statusCode}');
       }
@@ -508,7 +516,11 @@ class RecipeService {
         print('📦 Dados MealDB search recebidos');
         if (data['meals'] != null) {
           print('📦 Quantidade de meals MealDB search: ${data['meals'].length}');
-          return data['meals'].map<Recipe>((meal) => _mapMealDbRecipe(meal)).toList();
+          final recipes = <Future<Recipe>>[];
+          for (var meal in data['meals']) {
+            recipes.add(_mapMealDbRecipe(meal));
+          }
+          return Future.wait(recipes);
         }
       } else {
         print('❌ TheMealDB API search erro: ${response.statusCode}');
