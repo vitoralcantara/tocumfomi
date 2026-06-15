@@ -126,9 +126,9 @@ class RecipeService {
     }
 
     try {
-      // Build ingredients string for API
-      final ingredientsString = ingredients.join(',');
-      final url = Uri.parse('$_baseUrl/by-ingredients?ingredients=$ingredientsString&app_id=$_appId&app_key=$_appKey');
+      // Build ingredients string for API search
+      final ingredientsString = ingredients.join(' ');
+      final url = Uri.parse('$_baseUrl?type=public&q=$ingredientsString&app_id=$_appId&app_key=$_appKey');
 
       final response = await http.get(url);
 
@@ -137,6 +137,7 @@ class RecipeService {
         return _parseEdamamResponse(data);
       } else {
         print('Erro na API: ${response.statusCode}');
+        print('Response body: ${response.body}');
         // Fallback to mock data with filtering
         return _getFilteredMockRecipes(ingredients);
       }
