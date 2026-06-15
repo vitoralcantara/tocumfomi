@@ -129,11 +129,18 @@ class RecipeService {
       return [];
     }
 
-    print('🔍 Buscando receitas com ingredientes: $ingredients');
+    print('🔍 Buscando receitas com ingredientes originais: $ingredients');
+
+    // Traduzir ingredientes para inglês para as APIs
+    final translatedIngredients = ingredients.map((ing) {
+      return _translateIngredientToEnglish(ing);
+    }).toList();
+
+    print('🔍 Ingredientes traduzidos para APIs: $translatedIngredients');
 
     // Try Edamam API first (has better quality results with images)
     print('📡 Tentando Edamam API...');
-    final edamamRecipes = await _tryEdamamAPI(ingredients);
+    final edamamRecipes = await _tryEdamamAPI(translatedIngredients);
     print('✅ Edamam retornou ${edamamRecipes.length} receitas');
     if (edamamRecipes.isNotEmpty) {
       print('🎉 Usando receitas da Edamam');
@@ -142,16 +149,62 @@ class RecipeService {
 
     // Fallback to TheMealDB API (100% free, no limits)
     print('📡 Tentando TheMealDB API...');
-    final mealDbRecipes = await _tryMealDbAPI(ingredients);
+    final mealDbRecipes = await _tryMealDbAPI(translatedIngredients);
     print('✅ TheMealDB retornou ${mealDbRecipes.length} receitas');
     if (mealDbRecipes.isNotEmpty) {
       print('🎉 Usando receitas do TheMealDB');
       return mealDbRecipes;
     }
 
-    // Ultimate fallback to mock data
+    // Ultimate fallback to mock data (with original ingredients for matching)
     print('⚠️ Todas as APIs falharam, usando dados mock');
     return _getFilteredMockRecipes(ingredients);
+  }
+
+  String _translateIngredientToEnglish(String ingredient) {
+    // Dicionário de tradução de português para inglês
+    final Map<String, String> ptToEn = {
+      'tomate': 'tomato',
+      'cebola': 'onion',
+      'alho': 'garlic',
+      'ovos': 'eggs',
+      'arroz': 'rice',
+      'feijão': 'beans',
+      'carne': 'beef',
+      'frango': 'chicken',
+      'peixe': 'fish',
+      'queijo': 'cheese',
+      'manteiga': 'butter',
+      'azeite': 'olive oil',
+      'limão': 'lemon',
+      'sal': 'salt',
+      'pimenta': 'pepper',
+      'macarrão': 'pasta',
+      'leite': 'milk',
+      'farinha': 'flour',
+      'batata': 'potato',
+      'cenoura': 'carrot',
+      'abóbora': 'pumpkin',
+      'brócolis': 'broccoli',
+      'milho': 'corn',
+      'cogumelo': 'mushroom',
+      'pão': 'bread',
+      'abacaxi': 'pineapple',
+      'morango': 'strawberry',
+      'uva': 'grape',
+      'maçã': 'apple',
+      'banana': 'banana',
+      'laranja': 'orange',
+      'melancia': 'watermelon',
+    };
+
+    final lowerIngredient = ingredient.toLowerCase();
+    if (ptToEn.containsKey(lowerIngredient)) {
+      return ptToEn[lowerIngredient]!;
+    }
+    
+    // Se não encontrar no dicionário, assume que já está em inglês
+    return ingredient;
   }
 
   Future<List<Recipe>> _tryEdamamAPI(List<String> ingredients) async {
@@ -233,10 +286,11 @@ class RecipeService {
       print('⚠️ Resposta do MealDB não contém "meals"');
     }
     
-    // Filter by ingredient matching
+    // Filter by ingredient matching (with translation)
     print('🔄 Filtrando ${recipes.length} receitas por matching de ingredientes...');
+    final translatedIngredients = availableIngredients.map(_translateIngredientToEnglish).toList();
     final matchingRecipes = recipes.where((recipe) {
-      final score = recipe.calculateMatchScore(availableIngredients);
+      final score = recipe.calculateMatchScore(translatedIngredients);
       return score > 0;
     }).toList();
     
@@ -244,8 +298,8 @@ class RecipeService {
     
     // Sort by match score
     matchingRecipes.sort((a, b) {
-      final scoreA = a.calculateMatchScore(availableIngredients);
-      final scoreB = b.calculateMatchScore(availableIngredients);
+      final scoreA = a.calculateMatchScore(translatedIngredients);
+      final scoreB = b.calculateMatchScore(translatedIngredients);
       return scoreB.compareTo(scoreA);
     });
     
@@ -261,7 +315,9 @@ class RecipeService {
       final measure = data['strMeasure$i'];
       if (ingredient != null && ingredient.toString().isNotEmpty) {
         final measureStr = measure != null ? ' ($measure)' : '';
-        ingredients.add(TranslationService.translateWithDictionary('$ingredient$measureStr'));
+        // Traduzir ingrediente para português
+        final translatedIngredient = TranslationService.translateWithDictionary('$ingredient$measureStr');
+        ingredients.add(translatedIngredient);
       }
     }
 
@@ -335,7 +391,9 @@ class RecipeService {
     final ingredients = <String>[];
     if (data['ingredientLines'] != null) {
       for (var ingredient in data['ingredientLines']) {
-        ingredients.add(ingredient.toString());
+        // Traduzir ingredientes de volta para português
+        final translatedIngredient = TranslationService.translateWithDictionary(ingredient.toString());
+        ingredients.add(translatedIngredient);
       }
     }
 
