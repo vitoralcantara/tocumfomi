@@ -129,20 +129,28 @@ class RecipeService {
       return [];
     }
 
+    print('🔍 Buscando receitas com ingredientes: $ingredients');
+
     // Try Edamam API first (has better quality results with images)
+    print('📡 Tentando Edamam API...');
     final edamamRecipes = await _tryEdamamAPI(ingredients);
+    print('✅ Edamam retornou ${edamamRecipes.length} receitas');
     if (edamamRecipes.isNotEmpty) {
+      print('🎉 Usando receitas da Edamam');
       return edamamRecipes;
     }
 
     // Fallback to TheMealDB API (100% free, no limits)
+    print('📡 Tentando TheMealDB API...');
     final mealDbRecipes = await _tryMealDbAPI(ingredients);
+    print('✅ TheMealDB retornou ${mealDbRecipes.length} receitas');
     if (mealDbRecipes.isNotEmpty) {
+      print('🎉 Usando receitas do TheMealDB');
       return mealDbRecipes;
     }
 
     // Ultimate fallback to mock data
-    print('Todas as APIs falharam, usando dados mock');
+    print('⚠️ Todas as APIs falharam, usando dados mock');
     return _getFilteredMockRecipes(ingredients);
   }
 
@@ -150,18 +158,27 @@ class RecipeService {
     try {
       final ingredientsString = ingredients.join(' ');
       final url = Uri.parse('$_edamamBaseUrl?type=public&q=$ingredientsString&app_id=$_edamamAppId&app_key=$_edamamAppKey');
+      
+      print('📡 URL Edamam: $url');
 
       final response = await http.get(url);
 
+      print('📡 Status Edamam: ${response.statusCode}');
+      
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('📦 Dados Edamam recebidos: ${data.keys}');
+        if (data.containsKey('hits')) {
+          print('📦 Quantidade de hits Edamam: ${data['hits'].length}');
+        }
         return _parseEdamamResponse(data);
       } else {
-        print('Edamam API erro: ${response.statusCode}');
+        print('❌ Edamam API erro: ${response.statusCode}');
+        print('❌ Response body: ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Edamam API exception: $e');
+      print('❌ Edamam API exception: $e');
       return [];
     }
   }
@@ -172,40 +189,58 @@ class RecipeService {
       // and filter results
       final mainIngredient = ingredients.first;
       final url = Uri.parse('$_mealDbBaseUrl/filter.php?i=$mainIngredient');
+      
+      print('📡 URL MealDB: $url');
 
       final response = await http.get(url);
 
+      print('📡 Status MealDB: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('📦 Dados MealDB recebidos: ${data.keys}');
+        if (data.containsKey('meals')) {
+          print('📦 Quantidade de meals MealDB: ${data['meals']?.length}');
+        }
         return _parseMealDbResponse(data, ingredients);
       } else {
-        print('TheMealDB API erro: ${response.statusCode}');
+        print('❌ TheMealDB API erro: ${response.statusCode}');
+        print('❌ Response body: ${response.body}');
         return [];
       }
     } catch (e) {
-      print('TheMealDB API exception: $e');
+      print('❌ TheMealDB API exception: $e');
       return [];
     }
   }
 
   List<Recipe> _parseMealDbResponse(Map<String, dynamic> data, List<String> availableIngredients) {
+    print('🔄 Parseando resposta do MealDB...');
     final List<Recipe> recipes = [];
     
     if (data.containsKey('meals') && data['meals'] != null) {
+      print('🔄 Quantidade de meals para processar: ${data['meals'].length}');
       for (var meal in data['meals']) {
         try {
-          recipes.add(_mapMealDbRecipe(meal));
+          final recipe = _mapMealDbRecipe(meal);
+          print('✅ Receita processada: ${recipe.title}');
+          recipes.add(recipe);
         } catch (e) {
-          print('Erro ao processar receita do MealDB: $e');
+          print('❌ Erro ao processar receita do MealDB: $e');
         }
       }
+    } else {
+      print('⚠️ Resposta do MealDB não contém "meals"');
     }
     
     // Filter by ingredient matching
+    print('🔄 Filtrando ${recipes.length} receitas por matching de ingredientes...');
     final matchingRecipes = recipes.where((recipe) {
       final score = recipe.calculateMatchScore(availableIngredients);
       return score > 0;
     }).toList();
+    
+    print('✅ Receitas após filtro de matching: ${matchingRecipes.length}');
     
     // Sort by match score
     matchingRecipes.sort((a, b) {
@@ -214,6 +249,7 @@ class RecipeService {
       return scoreB.compareTo(scoreA);
     });
     
+    print('✅ Total de receitas do MealDB após matching: ${matchingRecipes.length}');
     return matchingRecipes;
   }
 
@@ -272,19 +308,26 @@ class RecipeService {
   }
 
   List<Recipe> _parseEdamamResponse(Map<String, dynamic> data) {
+    print('🔄 Parseando resposta da Edamam...');
     final List<Recipe> recipes = [];
     
     if (data.containsKey('hits') && data['hits'] != null) {
+      print('🔄 Quantidade de hits para processar: ${data['hits'].length}');
       for (var hit in data['hits']) {
         try {
           final recipeData = hit['recipe'];
-          recipes.add(_mapEdamamRecipe(recipeData));
+          final recipe = _mapEdamamRecipe(recipeData);
+          print('✅ Receita processada: ${recipe.title}');
+          recipes.add(recipe);
         } catch (e) {
-          print('Erro ao processar receita: $e');
+          print('❌ Erro ao processar receita da Edamam: $e');
         }
       }
+    } else {
+      print('⚠️ Resposta da Edamam não contém "hits"');
     }
     
+    print('✅ Total de receitas processadas da Edamam: ${recipes.length}');
     return recipes;
   }
 
@@ -335,10 +378,13 @@ class RecipeService {
   }
 
   List<Recipe> _getFilteredMockRecipes(List<String> ingredients) {
+    print('🔄 Filtrando ${_mockRecipes.length} receitas mock por matching...');
     final matchingRecipes = _mockRecipes.where((recipe) {
       final score = recipe.calculateMatchScore(ingredients);
       return score > 0;
     }).toList();
+
+    print('✅ Receitas mock após filtro: ${matchingRecipes.length}');
 
     // Sort by match score (highest first)
     matchingRecipes.sort((a, b) {
@@ -347,6 +393,7 @@ class RecipeService {
       return scoreB.compareTo(scoreA);
     });
 
+    print('✅ Total de receitas mock retornadas: ${matchingRecipes.length}');
     return matchingRecipes;
   }
 
@@ -360,41 +407,60 @@ class RecipeService {
   }
 
   Future<List<Recipe>> searchRecipes(String query) async {
+    print('🔍 Buscando receitas com query: $query');
+    
     // Try Edamam API first
+    print('📡 Tentando Edamam API para busca...');
     try {
       final url = Uri.parse('$_edamamBaseUrl?type=public&q=$query&app_id=$_edamamAppId&app_key=$_edamamAppKey');
+      
+      print('📡 URL Edamam search: $url');
 
       final response = await http.get(url);
 
+      print('📡 Status Edamam search: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('📦 Dados Edamam search recebidos');
+        if (data.containsKey('hits')) {
+          print('📦 Quantidade de hits Edamam search: ${data['hits'].length}');
+        }
         return _parseEdamamResponse(data);
       } else {
-        print('Edamam API search erro: ${response.statusCode}');
+        print('❌ Edamam API search erro: ${response.statusCode}');
       }
     } catch (e) {
-      print('Edamam API search exception: $e');
+      print('❌ Edamam API search exception: $e');
     }
 
     // Fallback to TheMealDB API
+    print('📡 Tentando TheMealDB API para busca...');
     try {
       final url = Uri.parse('$_mealDbBaseUrl/search.php?s=$query');
+      
+      print('📡 URL MealDB search: $url');
 
       final response = await http.get(url);
 
+      print('📡 Status MealDB search: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('📦 Dados MealDB search recebidos');
         if (data['meals'] != null) {
+          print('📦 Quantidade de meals MealDB search: ${data['meals'].length}');
           return data['meals'].map<Recipe>((meal) => _mapMealDbRecipe(meal)).toList();
         }
       } else {
-        print('TheMealDB API search erro: ${response.statusCode}');
+        print('❌ TheMealDB API search erro: ${response.statusCode}');
       }
     } catch (e) {
-      print('TheMealDB API search exception: $e');
+      print('❌ TheMealDB API search exception: $e');
     }
 
     // Ultimate fallback to mock search
+    print('⚠️ Todas as APIs de busca falharam, usando mock search');
     return _searchMockRecipes(query);
   }
 
