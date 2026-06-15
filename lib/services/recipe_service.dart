@@ -322,13 +322,15 @@ class RecipeService {
     }
 
     // Build instructions from TheMealDB format
-    final instructions = <String>[];
+    final rawInstructions = <String>[];
     for (int i = 1; i <= 20; i++) {
       final instruction = data['strInstructions$i']?.toString().trim() ?? data['strInstructions$i']?.toString().trim();
       if (instruction != null && instruction.isNotEmpty) {
-        instructions.add(instruction);
+        rawInstructions.add(instruction);
       }
     }
+    // Traduzir instruções
+    final instructions = await TranslationService.translateInstructions(rawInstructions);
 
     // Get image URL
     String? imageUrl = data['strMealThumb'] as String?;
@@ -403,9 +405,12 @@ class RecipeService {
 
     final instructions = <String>[];
     if (data['instructionLines'] != null) {
+      final rawInstructions = <String>[];
       for (var instruction in data['instructionLines']) {
-        instructions.add(instruction.toString());
+        rawInstructions.add(instruction.toString());
       }
+      // Traduzir instruções
+      instructions.addAll(await TranslationService.translateInstructions(rawInstructions));
     } else if (data['url'] != null) {
       instructions.add('Para instruções detalhadas, visite: ${data['url']}');
     } else {
